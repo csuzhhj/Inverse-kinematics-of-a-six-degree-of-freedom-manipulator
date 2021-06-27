@@ -1,5 +1,5 @@
-//初始时刻的角度值（弧度制）
-// 实际机械臂应置的初始位为：【0 -90 0 0 0 0】
+// Angle value at the initial moment (in radians)
+// The actual initial position of manipulator should be: [0-90 0 0 0]
 double t1_current = 0;
 double t2_current = 0;
 double t3_current = 90*PI/180;
@@ -7,10 +7,10 @@ double t4_current = 0;
 double t5_current = 0;
 double t6_current = 0;
 
-//TODO:机械臂逆运动学解算
+//TODO:Inverse kinematics of manipulator
 MatrixXd robot_ik(MatrixXd& T06)
 {
-	//机械臂杆件参数
+	//Mechanical arm bar parameters
 	const double a1 = 0.0231;
 	const double a2 = 0.26;
 	const double a3 = 0.0276;
@@ -18,7 +18,7 @@ MatrixXd robot_ik(MatrixXd& T06)
 	const double d4 = 0.2764;
 	const double d6 = 0.1319;
 	
-	//! 计算t1
+	//! To calculate t1
 	//double t1_min = -170 * PI / 180;
 	//double t1_max = 170 * PI / 180;
 	double px = T06(0, 3);
@@ -42,15 +42,15 @@ MatrixXd robot_ik(MatrixXd& T06)
 	T01.row(3) << 0, 0, 0, 1;
 
 
-	//! 计算t3
+	//! To calculate t3
 	double t3_min = -80 * PI / 180;
 	double t3_max = 180 * PI / 180;
-	vector<double> t3;//存储可能的t3值
+	vector<double> t3;//Stores possible T3 values
 	MatrixXd p01(3, 1);
 	p01 << a1 * cos(t1), a1*sin(t1), d1;
 	MatrixXd p14 = p04 - p01;
 	double l4 = sqrt(d4*d4 + a3 * a3);
-	if (fabs((pow(l4, 2) + pow(a2, 2) - pow(p14.norm(), 2)) / (2 * a2*l4)) <= 1)//因为acos(x),x不能>1或<-1，否则出现虚数
+	if (fabs((pow(l4, 2) + pow(a2, 2) - pow(p14.norm(), 2)) / (2 * a2*l4)) <= 1)//because acos(x),x cannot >1 or <-1, or you get an imaginary number
 	{
 		double phi = acos((pow(l4, 2) + pow(a2, 2) - pow(p14.norm(), 2)) / (2 * a2*l4));
 		//cout << "phi= " << phi << endl;
@@ -67,12 +67,12 @@ MatrixXd robot_ik(MatrixXd& T06)
 	auto it_t3 = t3.begin();
 	while (it_t3 != t3.end())
 	{
-		if (*it_t3<t3_min || *it_t3>t3_max) it_t3 = t3.erase(it_t3);//清除超出角度范围的值
+		if (*it_t3<t3_min || *it_t3>t3_max) it_t3 = t3.erase(it_t3);//Clear values that are out of the Angle range
 		else ++it_t3;
 	}
 	//cout << "打印清除超出角度范围之后的t3" << endl;
 	//for (auto x : t3) cout << x << endl;
-	vector<MatrixXd> T23_vector;//存储T23的容器
+	vector<MatrixXd> T23_vector;//Container to store T23
 	for (auto i = 0; i < t3.size(); ++i)
 	{
 		MatrixXd T23(4, 4);
@@ -83,17 +83,17 @@ MatrixXd robot_ik(MatrixXd& T06)
 		T23_vector.push_back(T23);
 	}
 
-	//! 计算t2
+	//! Calculation of t2
 	double t2_min = -20 * PI / 180;
 	double t2_max = 200 * PI / 180;
-	vector<double> t2;//存储可能的t2值
+	vector<double> t2;//Store possible t2 values
 	MatrixXd R01(3, 3);
 	R01.row(0) << cos(t1), 0, sin(t1);
 	R01.row(1) << sin(t1), 0, -cos(t1);
 	R01.row(2) << 0, 1, 0;
 	MatrixXd p14_1 = R01.transpose()*p14;
 	double beta1 = atan2(p14_1(1, 0), p14_1(0, 0));
-	if (fabs((a2*a2 + pow(p14.norm(), 2) - l4 * l4) / (2 * a2*p14.norm())) <= 1)//因为acos(x), x不能 > 1或 < -1，否则出现虚数
+	if (fabs((a2*a2 + pow(p14.norm(), 2) - l4 * l4) / (2 * a2*p14.norm())) <= 1)
 	{
 		double beta2 = acos((a2*a2 + pow(p14.norm(), 2) - l4 * l4) / (2 * a2*p14.norm()));
 		double t2_1 = beta1 + beta2;
@@ -109,7 +109,7 @@ MatrixXd robot_ik(MatrixXd& T06)
 	auto it_t2 = t2.begin();
 	while (it_t2 != t2.end())
 	{
-		if (*it_t2<t2_min || *it_t2>t2_max) it_t2 = t2.erase(it_t2);//清除超出角度范围的值
+		if (*it_t2<t2_min || *it_t2>t2_max) it_t2 = t2.erase(it_t2);
 		else ++it_t2;
 	}
 	//cout << "打印清除超出角度范围之后的t2" << endl;
@@ -125,13 +125,13 @@ MatrixXd robot_ik(MatrixXd& T06)
 		T12_vector.push_back(T12);
 	}
 
-	//! 计算t4和t6
+	//! Calculate t4 and t6
 	double t4_min = -180 * PI / 180;
 	double t4_max = 180 * PI / 180;
 	double t6_min = -360 * PI / 180;
 	double t6_max = 360 * PI / 180;
-	vector<double> t4; //存储可能的t4值
-	vector<double> t6; //存储可能的t6值
+	vector<double> t4; //Stores possible t4 values
+	vector<double> t6; //Stores possible t6 values
 	MatrixXd T03(4, 4);
 	MatrixXd R03(3, 3);
 	MatrixXd R06(3, 3);
@@ -231,12 +231,12 @@ MatrixXd robot_ik(MatrixXd& T06)
 	auto it_t4 = t4.begin();
 	while (it_t4 != t4.end())
 	{
-		if (*it_t4<t4_min || *it_t4>t4_max) it_t4 = t4.erase(it_t4);//清除超出角度范围的值
+		if (*it_t4<t4_min || *it_t4>t4_max) it_t4 = t4.erase(it_t4);//Clear values that are out of the Angle range
 		else ++it_t4;
 	}
 	//cout << "打印清除超出角度范围之后的t4" << endl;
 	//for (auto x : t4) cout << x << endl;
-	vector<MatrixXd> T34_vector;//存储T34的容器
+	vector<MatrixXd> T34_vector;//Container to store T34
 	for (auto i = 0; i < t4.size(); ++i)
 	{
 		MatrixXd T34(4, 4);
@@ -254,12 +254,12 @@ MatrixXd robot_ik(MatrixXd& T06)
 	auto it_t6 = t6.begin();
 	while (it_t6 != t6.end())
 	{
-		if (*it_t6<t6_min || *it_t6>t6_max) it_t6 = t6.erase(it_t6);//清除超出角度范围的值
+		if (*it_t6<t6_min || *it_t6>t6_max) it_t6 = t6.erase(it_t6);//Clear values that are out of the Angle range
 		else ++it_t6;
 	}
 	//cout << "打印清除超出角度范围之后的t6" << endl;
 	//for (auto x : t6) cout << x << endl;
-	vector<MatrixXd> T56_vector;//存储T56的容器
+	vector<MatrixXd> T56_vector;//The container to store the T56
 	for (auto i = 0; i < t6.size(); ++i)
 	{
 		MatrixXd T56(4, 4);
@@ -275,7 +275,7 @@ MatrixXd robot_ik(MatrixXd& T06)
 	//! 计算t5
 	double t5_min = -125 * PI / 180;
 	double t5_max = 125 * PI / 180;
-	vector<double> t5; //存储可能的t5值
+	vector<double> t5; //Stores possible t5 values
 	double t5_1;
 	double t5_2;
 	double r13 = T06(0, 2); double r23 = T06(1, 2); double r33 = T06(2, 2);
@@ -323,12 +323,12 @@ MatrixXd robot_ik(MatrixXd& T06)
 	auto it_t5 = t5.begin();
 	while (it_t5 != t5.end())
 	{
-		if (*it_t5<t5_min || *it_t5>t5_max) it_t5 = t5.erase(it_t5);//清除超出角度范围的值
+		if (*it_t5<t5_min || *it_t5>t5_max) it_t5 = t5.erase(it_t5);//Clear values that are out of the Angle range
 		else ++it_t5;
 	}
 	//cout << "打印清除超出角度范围之后的t5" << endl;
 	//for (auto x : t5) cout << x << endl;
-	vector<MatrixXd> T45_vector;//存储T45的容器
+	vector<MatrixXd> T45_vector;//The container for storing T45
 	for (auto i = 0; i < t5.size(); ++i)
 	{
 		MatrixXd T45(4, 4);
@@ -342,11 +342,11 @@ MatrixXd robot_ik(MatrixXd& T06)
 	//for (auto x : T45_vector) cout << x << endl;
 
 
-	//! 求出满足条件的6个角度
-	MatrixXd angles(6, 1);//存储6个关节角度
+	//! Find the 6 angles that satisfy the condition
+	MatrixXd angles(6, 1);//Stores 6 joint angles
 	vector<MatrixXd> angles_vector;
 	MatrixXd T(4, 4);
-	const double tor = 0.001;//两个浮点数之差小于0.001，就认为两个浮点数相等
+	const double tor = 0.001;//Two floating-point numbers are considered equal when the difference between them is less than 0.001
 	double t00;
 	double t11;
 	double t22;
@@ -413,7 +413,7 @@ MatrixXd robot_ik(MatrixXd& T06)
 						t13 = fabs(T(1, 3) - T06(1, 3));
 						t23 = fabs(T(2, 3) - T06(2, 3));
 
-						//! 浮点数的比较不能通过“==”的方式
+						//! Floating-point numbers cannot be compared using the == method
 						if (t03 < tor&&t13 < tor&&t23 < tor&&t00 < tor&&t11 < tor&&t22 < tor)
 						{
 							angles << t1, t2[j], t3[k], t4[l], t5[m], t6[n];
@@ -442,7 +442,7 @@ MatrixXd robot_ik(MatrixXd& T06)
 						t03 = fabs(T(0, 3) - T06(0, 3));
 						t13 = fabs(T(1, 3) - T06(1, 3));
 						t23 = fabs(T(2, 3) - T06(2, 3));
-						//! 矩阵，浮点数的比较不能通过“==”的方式
+						//! Floating-point numbers cannot be compared using the == method
 						if (t03 < tor&&t13 < tor&&t23 < tor&&t00 < tor&&t11 < tor&&t22 < tor)
 						{
 							/*cout << j <<' '<< k << ' ' << l << ' ' << m << ' ' << n<<' ';
@@ -456,12 +456,12 @@ MatrixXd robot_ik(MatrixXd& T06)
 		}
 	}
 
-	cout << "打印满足条件的angles有几组:" << angles_vector.size() << endl;
+	cout << "There are several groups of angles:" << angles_vector.size() << endl;
 	for (auto x : angles_vector) cout << x * 180 / PI << endl << endl;
 
-	//! 求最后返回的角度
-	MatrixXd ret(6, 1);//最后返回的结果
-	int joint1_coeff = 10;//关节系数，原则：尽可能让小关节动
+	//! Find the Angle of final return
+	MatrixXd ret(6, 1);//The result of the final return
+	int joint1_coeff = 10;//Joint coefficient, rule: let the facet joint move as much as possible
 	int joint2_coeff = 8;
 	int joint3_coeff = 6;
 	int joint4_coeff = 4;
@@ -488,14 +488,14 @@ MatrixXd robot_ik(MatrixXd& T06)
 			t5_diff = fabs((angles_vector[i](4, 0) - t5_current)*joint5_coeff);
 			t6_diff = fabs((angles_vector[i](5, 0) - t6_current)*joint6_coeff);
 			double diff_sum = t1_diff + t2_diff + t3_diff + t4_diff + t5_diff + t6_diff;
-			if (diff_sum < error)//不断更新误差最小的
+			if (diff_sum < error)//Keep updating the ones with the least error
 			{
 				error = diff_sum;
 				ret << angles_vector[i](0, 0), angles_vector[i](1, 0), angles_vector[i](2, 0), angles_vector[i](3, 0),
 					angles_vector[i](4, 0), angles_vector[i](5, 0);
 			}
 		}
-		//误差最小的一组解，更新当前角度
+		//The set of solutions with the least error. Updates the current Angle
 		t1_current = ret(0, 0);
 		t2_current = ret(1, 0);
 		t3_current = ret(2, 0);
