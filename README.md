@@ -18,4 +18,47 @@ The kinematics model of the manipulator is shown in the figure below:
 Among them：a1=23.15mm,a2=260.02mm,d1=352.50mm,d4=276.43mm,d6=131.95mm
 
 
+Reference：The inverse kinematics solutions of industrial robot manipulators
+
+
+
+ 
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+ 
+
+ 
+
+ 
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+ 
+
+ 
 
