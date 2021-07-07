@@ -1,8 +1,10 @@
 # Inverse-kinematics-of-a-six-degree-of-freedom-manipulator
 
+## Need to install Eigen library:https://eigen.tuxfamily.org/index.php?title=Main_Page
+
 The kinematics model of the manipulator is shown in the figure below:
 
-![](D:\桌面文件\图片存储\机械臂运动学模型.png)
+![image](https://user-images.githubusercontent.com/32250874/124765721-d2bb1180-df68-11eb-92df-15f904f463d9.png)
 
 1. |  i   | αi-1 | ai-1 |  di  |  θi  |
    | :--: | :--: | :--: | :--: | :--: |
