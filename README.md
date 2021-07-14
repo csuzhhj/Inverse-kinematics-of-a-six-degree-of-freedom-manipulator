@@ -6,7 +6,7 @@ The kinematics model of the manipulator is shown in the figure below:
 
 ![image](https://user-images.githubusercontent.com/32250874/124765721-d2bb1180-df68-11eb-92df-15f904f463d9.png)
 
-![image](https://user-images.githubusercontent.com/32250874/124766289-5d037580-df69-11eb-8b03-c22d0a3a033f.png)
+![image](https://img-blog.csdnimg.cn/20210714202856222.png#pic_center)
 
 1. |  i   | αi-1 | ai-1 |  di  |  θi  |
    | :--: | :--: | :--: | :--: | :--: |
